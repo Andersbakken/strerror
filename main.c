@@ -145,14 +145,12 @@ struct {
 int main(int argc, char **argv)
 {
     int i, err, j;
-    const char *defineName = 0;
     for (i=1; i<argc; ++i) {
         err = atoi(argv[i]);
         if (!err) {
             for (j=0; errors[j].name; ++j) {
                 if (!strcasecmp(argv[i], errors[j].name)) {
                     err = errors[j].code;
-                    defineName = errors[j].name;
                     break;
                 }
             }
@@ -160,15 +158,19 @@ int main(int argc, char **argv)
         if (!err) {
             printf("Can't parse %s\n", argv[i]);
         } else {
-            if (!defineName) {
+            const char *str = strerror(err);
+            if (!str) {
+                printf("Can't find %s\n", argv[i]);
+            } else {
+                printf("%d:", err);
                 for (j=0; errors[j].name; ++j) {
                     if (err == errors[j].code) {
-                        defineName = errors[j].name;
-                        break;
+                        printf(" %s", errors[j].name);
+                        // there can be aliases
                     }
                 }
+                printf(" \"%s\"\n", str);
             }
-            printf("%d: %s (%s)\n", err, defineName ? : "(not found)", strerror(err));
         }
     }
     return 0;
